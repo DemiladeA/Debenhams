@@ -291,6 +291,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .dtb-i{width:18px;height:18px;flex:none}
 .spons{font-size:10px;color:rgb(118 118 118);margin-top:8px;letter-spacing:.02em}
 .spons+.br{margin-top:2px}
+.savecard .btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ============================================================
    Review shell, after Jake's standard prototype format (shopping-agent configurator).
@@ -556,13 +557,13 @@ body.fold .rs-chin{display:block;flex:none;height:82px;background:#FFF}
         ['Measure','<ul><li>Primary: share of orders at or above threshold; AOV.</li><li>Guardrails: checkout-start rate, margin after delivery cost.</li></ul>'],
         ['Build notes','<ul><li>The page loads a <code>DeliveryProgress</code> stylesheet'+(plt?' on PLT as well':'')+', so a delivery progress component already exists, probably in the basket. Reuse it so both places show the same number.</li>'+(plt?THRESH_PLT:'<li>The PDP lists paid methods (next day £5.99, locker £2.49) but no free-delivery threshold, so confirm one exists for UK before testing.</li><li>Hide for Premier members; they already have free delivery.</li>')+'<li>Keep the same slot order as concept 1: bundle items not yet in the bag first, then Bloomreach. Sort only the Bloomreach items by price against the gap, and still tag a bundle item if it closes the gap.</li><li>Feed the tiles from the same Bloomreach "also bought" recommender, then sort by price against the gap. That way the items that close the gap are still ones people genuinely buy together, not just whatever costs the right amount.</li></ul>']
       ],field:true},
-    save:{title:'4. Save your bag',opp:'A guest isn\'t ready to buy, and the bag is lost when they leave.',
+    save:{title:'4. Save your bag',opp:'A guest isn\'t ready to buy, and we have no way to bring them back to the bag.',
       sections:[
-        ['What changes','<ul><li>Guests only. Below the usual buttons, one email field offers to send them a link to this bag.</li><li>Marketing opt-in is a separate, unticked box, above the button so it is read before submitting.</li><li>Signed-in customers see nothing extra. Their bag is already saved to their account, so the drawer looks like today\'s compact version.</li></ul>'],
-        ['Hypothesis','If we let guests keep their bag, more of the guests who leave will come back and buy, without lowering checkout starts in the session.'],
-        ['Measure','<ul><li>Primary: 14-day conversion of guest drawer sessions, counting in-session orders and orders through the bag email.</li><li>Secondary: email capture rate, opt-in rate.</li><li>Guardrails: in-session checkout-start rate (a "save for later" can give permission to leave), unsubscribe and complaint rate on bag emails.</li></ul>'],
-        ['Consent copy','<ul><li><b>Two purposes, two controls.</b> Sending the bag they asked for is a service email. Offers and reminders are marketing. Keep the opt-in separate and unticked, and never a condition of saving the bag.</li><li><b>Don\'t reuse the footer wording.</b> '+(plt?'PLT\'s':'The')+' newsletter form says "By submitting your details, you agree to receive marketing communications". That ties consent to submitting, which suits a newsletter form, where marketing is the point. Here it would bundle consent into the service.</li><li><b>Name the brand.</b> '+(plt?'The footer consents to "PrettyLittleThing &amp; our family of brands". For this box, name the brand being shopped, or list the brands by name, so consent is specific.':'Consent should name the brand being shopped, or list the brands by name, rather than a vague "family of brands".')+'</li><li><b>Reminders are marketing.</b> A "still thinking about it?" follow-up should only go to people who ticked, unless Legal confirms the soft opt-in applies. That route needs a clear chance to opt out at the point of collection, so it changes the copy.</li><li><b>Record it.</b> Store the timestamp, the wording version and the source (post-ATB drawer) with each consent.</li><li>The 30-day retention period is a placeholder. Match it to how long the bag link actually works.</li></ul>'],
-        ['Build notes','<ul><li>Bloomreach is already on the page with server-side identity'+(plt?', and its cookie is described as remembering bag items across sessions':'')+'. Identify the guest by email there and trigger the bag email from the same place.</li><li>The link must rebuild the bag on another device: a signed token, with stock and price re-checked on open.</li><li>Use <code>type="email"</code> and <code>autocomplete="email"</code> so autofill does most of the work. On mobile the keyboard covers about half the sheet, so scroll the field into view on focus.</li><li>Ask once per session. Once someone has saved, don\'t ask again.</li><li>Test it separately from concept 1 first: they compete for the same space and attention. Combine them once each has a result.</li></ul>']
+        ['What changes','<ul><li>Guests only, on their first add. Below the usual buttons, one email field invites them to save their bag.</li><li>Saving enters them into the abandoned basket flow. Those are marketing emails, so the consent box is required: the Email My Bag button stays disabled until it is ticked.</li><li>The box starts unticked, and the line under the button says why it is needed.</li><li>Signed-in customers see nothing extra; they are already in the abandoned basket flow.</li><li>Later adds show the complete-the-look tiles instead, so the two never compete for the same space.</li></ul>'],
+        ['Hypothesis','If we ask guests to save their bag on their first add, more guests will enter the abandoned basket flow and more of them will come back and buy, without lowering checkout starts in the session.'],
+        ['Measure','<ul><li>Primary: 14-day conversion of guest drawer sessions, counting in-session orders and orders from the abandoned basket flow.</li><li>Secondary: email capture rate (emails submitted per guest drawer view).</li><li>Guardrails: in-session checkout-start rate (a \"save for later\" can give permission to leave), unsubscribe and complaint rates on the flow.</li></ul>'],
+        ['Consent copy','<ul><li><b>One purpose, said plainly.</b> The box covers bag reminders and other marketing from the brand, because that is what they will receive. Say both in the label, as here, so the consent is informed.</li><li><b>Unticked by default.</b> Pre-ticked boxes are not valid consent. The button is disabled until they tick, and the line under it explains why, so the disabled state is never a mystery. Screen readers get the same explanation through <code>aria-describedby</code>.</li><li><b>Don\'t reuse the footer wording.</b> \"By submitting your details, you agree to receive marketing\" ties consent to pressing a button. Here the tick is the consent.</li><li><b>Name the brand.</b> '+(plt?'The footer consents to \"PrettyLittleThing &amp; our family of brands\". For this box, name the brand being shopped, or list the brands by name, so consent is specific.':'Name the brand being shopped, or list the brands by name, rather than a vague \"family of brands\".')+'</li><li><b>Record it.</b> Store the timestamp, the wording version and the source (post-ATB drawer) with each consent.</li><li>Get Legal or the DPO to sign off the final wording before testing.</li></ul>'],
+        ['Build notes','<ul><li>Bloomreach is already on the page with server-side identity'+(plt?', and its cookie is described as remembering bag items across sessions':'')+'. Identify the guest by email there and add them to the existing abandoned basket flow with their bag contents.</li><li>Use <code>type=\"email\"</code> and <code>autocomplete=\"email\"</code> so autofill does most of the work. On mobile the keyboard covers about half the sheet, so scroll the field into view on focus.</li><li>Ask once per session. Once someone has saved, don\'t ask again.</li></ul>']
       ]},
     light:{title:'3. Light confirmation',opp:'The customer is adding several things and the modal interrupts them.',
       sections:[
@@ -644,18 +645,18 @@ body.fold .rs-chin{display:block;flex:none;height:82px;background:#FFF}
     return '<div class="tile"><div class="art"><img src="'+IMG[r.img]+'" alt="">'+tag+ov+'</div>'+(r.sponsored?'<div class="spons">Sponsored</div>':'')+((r.brand||b.brandLine)?'<div class="br">'+(r.brand||b.brandLine)+'</div>':'')+'<div class="nm">'+esc(r.name)+'</div><div class="pr">'+money(r.price)+'</div></div>';
   }
 
-  var CONSENT={bm:'Also email me offers, new arrivals and style picks from boohooMAN. I can unsubscribe at any time.',
-    plt:'Also email me offers, new drops and style picks from PrettyLittleThing. I can unsubscribe at any time.',
-    deb:'Also email me offers, new arrivals and style picks from Debenhams. I can unsubscribe at any time.'};
+  var CONSENT={bm:'Email me about my bag, plus offers, new arrivals and style picks from boohooMAN. I can unsubscribe at any time.',
+    plt:'Email me about my bag, plus offers, new drops and style picks from PrettyLittleThing. I can unsubscribe at any time.',
+    deb:'Email me about my bag, plus offers, new arrivals and style picks from Debenhams. I can unsubscribe at any time.'};
   function saveCard(){
     var b=B();
-    if(state.saved)return '<div class="savecard" role="status"><p class="sc-h">'+ICON_TICK+'Bag sent to '+esc(state.saved)+'</p><p class="sc-s" style="margin:0">We\'ll keep it for 30 days.'+(state.optin?' You\'re also signed up for '+b.label+' emails; unsubscribe any time.':'')+' <button class="linkbtn" data-act="undo">Not you?</button></p></div>';
-    return '<div class="savecard"><p class="sc-h">Not ready yet? Save your bag</p><p class="sc-s">We\'ll email you a link so you can pick up where you left off, on any device.</p>'+
+    if(state.saved)return '<div class="savecard" role="status"><p class="sc-h">'+ICON_TICK+'Bag saved</p><p class="sc-s" style="margin:0">We\'ll email '+esc(state.saved)+' about your bag. You\'re signed up for '+b.label+' emails; unsubscribe any time. <button class="linkbtn" data-act="undo">Not you?</button></p></div>';
+    return '<div class="savecard"><p class="sc-h">Not ready yet? Save your bag</p><p class="sc-s">Leave your email and we\'ll remind you about the items in your bag.</p>'+
       '<label class="sr" for="saveEmail">Email address</label><input class="sc-in" id="saveEmail" type="email" inputmode="email" autocomplete="email" placeholder="Email address" value="'+esc(state.draft)+'"'+(state.saveErr?' aria-invalid="true" aria-describedby="saveErr"':'')+'>'+
       (state.saveErr?'<p class="sc-err" id="saveErr" role="alert">'+state.saveErr+'</p>':'')+
       '<label class="sc-opt"><input type="checkbox" id="saveOpt"'+(state.optin?' checked':'')+'><span>'+CONSENT[state.brand]+'</span></label>'+
-      '<button class="btn btn-o" data-act="save">Email My Bag</button>'+
-      '<p class="sc-legal">We\'ll only use your email to send this bag unless you tick the box. See our <a href="#" onclick="return false">Privacy Policy</a>.</p></div>';
+      '<button class="btn btn-o" data-act="save" id="saveBtn" aria-describedby="saveLegal"'+(state.optin?'':' disabled')+'>Email My Bag</button>'+
+      '<p class="sc-legal" id="saveLegal">Tick the box to save your bag. Bag reminders are marketing emails, so we need your consent to send them. See our <a href="#" onclick="return false">Privacy Policy</a>.</p></div>';
   }
   function cols(l,r){return (state.brand==='plt'&&state.device==='desktop')?'<div class="cols"><div>'+l+'</div><div>'+r+'</div></div>':l+r}
   function render(){
@@ -684,7 +685,7 @@ body.fold .rs-chin{display:block;flex:none;height:82px;background:#FFF}
     var t=e.target.closest('[data-act]');if(!t)return;
     var a=t.dataset.act,id=t.dataset.id,r=B().recs.filter(function(x){return x.id===id})[0];
     if(a==='close'){closeSheet();return}
-    if(a==='save'){var v=($('saveEmail').value||'').trim();state.draft=v;state.optin=$('saveOpt').checked;
+    if(a==='save'){var v=($('saveEmail').value||'').trim();state.draft=v;state.optin=$('saveOpt').checked;if(!state.optin)return;
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){state.saveErr=v?'Enter an email address like name@example.com':'Enter your email address';render();$('saveEmail').focus();return}
       state.saveErr='';state.saved=v;render();return}
     if(a==='undo'){state.saved=null;render();setTimeout(function(){var i=$('saveEmail');if(i)i.focus()},0);return}
@@ -695,7 +696,7 @@ body.fold .rs-chin{display:block;flex:none;height:82px;background:#FFF}
   });
 
   inner.addEventListener('input',function(e){if(e.target.id==='saveEmail')state.draft=e.target.value});
-  inner.addEventListener('change',function(e){if(e.target.id==='saveOpt')state.optin=e.target.checked});
+  inner.addEventListener('change',function(e){if(e.target.id==='saveOpt'){state.optin=e.target.checked;var sb=$('saveBtn');if(sb)sb.disabled=!state.optin}});
   inner.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='saveEmail'){e.preventDefault();inner.querySelector('[data-act="save"]').click()}});
 
   function showToast(it){
